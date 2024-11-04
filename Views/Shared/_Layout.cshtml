@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SetorDeCompras.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <header>
@@ -38,7 +39,14 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="ListagemDeProdutos">Listar Produtos</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="ListaDeAdicionarProdutos">Adicionar Produtos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="meuCarrinhoLink" class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="MeuCarrinho">Meu Carrinho</a>
+                        </li>
                     </ul>
+
                 </div>
             </div>
         </nav>
@@ -60,3 +68,38 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+
+<script>
+        window.onload = function () {
+        const token = localStorage.getItem('jwtToken');
+        if (token) {
+            try {
+                const tokenParts = token.split('.');
+                if (tokenParts.length !== 3) {
+                    throw new Error("Token JWT inválido");
+                }
+
+                const payload = JSON.parse(atob(tokenParts[1]));
+                console.log("Payload:", payload); // Log do payload
+                const email = payload.sub;
+
+                if (email) {
+                    const meuCarrinhoLink = document.getElementById('meuCarrinhoLink');
+                    if (meuCarrinhoLink) {
+                        meuCarrinhoLink.href = `/Produtos/MeuCarrinho?email=${encodeURIComponent(email)}`;
+                    } else {
+                        console.error("Elemento 'meuCarrinhoLink' não encontrado.");
+                    }
+                } else {
+                    console.error("Campo 'sub' não encontrado no token.");
+                }
+            } catch (error) {
+                console.error("Erro ao decodificar o token:", error);
+            }
+        } else {
+            console.error("Token não encontrado no Local Storage.");
+        }
+    }
+
+</script>

@@ -12,13 +12,15 @@ namespace SetorDeCompras.Controllers
     {
         private readonly AppDbContext _context;
         private readonly EmailService _emailService;
+        private readonly JwtService _jwtService;
         private static Random _random = new Random();
 
 
-        public UserController(AppDbContext context, EmailService emailService)
+        public UserController(AppDbContext context, EmailService emailService, JwtService jwtService)
         {
             _context = context;
             _emailService = emailService;
+            _jwtService = jwtService;
         }
 
         public int GenerateRandomCode()
@@ -144,7 +146,9 @@ namespace SetorDeCompras.Controllers
 
             if (dados!.Code == code)
             {
-                return RedirectToAction("Index", "Produtos");
+                var token = _jwtService.GenerateJwtToken(email);
+
+                return RedirectToAction("Index", "Home", new { token });
             }
             ModelState.AddModelError(string.Empty, "Dados inválidos. Por favor, preencha todos os campos corretamente.");
             return View("Codigo");

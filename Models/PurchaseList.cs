@@ -12,4 +12,6 @@ public class PurchaseList
     public string Name { get; set; } = string.Empty;
 
     public float Price { get; set; }
+
+    public int Quantidade { get; set; }
 }

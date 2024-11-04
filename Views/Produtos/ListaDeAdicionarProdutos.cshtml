@@ -1,0 +1,97 @@
+﻿@model List<SetorDeCompras.Models.ProdutosModel>
+
+<div class="container mt-5">
+    <h2>Lista de Produtos</h2>
+    <form id="produtosForm" method="post" action="/Produtos/AdicionarProdutosPost">
+        <input type="hidden" name="email" id="emailToken" value="@ViewBag.Email" />
+
+        <ul class="list-group">
+            @if (Model != null && Model.Any())
+            {
+                for (int i = 0; i < Model.Count; i++)
+                {
+                    var produto = Model[i];
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @produto.Name
+                        <div>
+                            <span id="counter-@produto.Id">0</span>
+                            <button type="button" onclick="incrementCounter('@produto.Id')" class="btn btn-secondary btn-sm">+</button>
+                            <button type="button" onclick="tirarCounter('@produto.Id')" class="btn btn-secondary btn-sm">-</button>
+
+                            <input type="hidden" name="produtos[@i].Id" value="@produto.Id" />
+                            <input type="hidden" name="produtos[@i].Preco" value="@produto.Preco" />
+                            <input type="hidden" name="produtos[@i].Name" value="@produto.Name" />
+                            <input type="hidden" name="produtos[@i].Quantidade" id="counterInput-@produto.Id" value="0" />
+                        </div>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="list-group-item">Nenhum produto disponível.</li>
+            }
+        </ul>
+        <button type="submit" class="btn btn-primary mt-3">Enviar</button>
+    </form>
+</div>
+
+<!--Script do Bootstrap e jQuery-->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const token = localStorage.getItem('jwtToken');
+        console.log("Token:", token);  
+
+        if (token) {
+            try {
+                const tokenParts = token.split('.');
+                console.log("Token Parts:", tokenParts); 
+
+                if (tokenParts.length !== 3) {
+                    throw new Error("Token JWT inválido");
+                }
+
+                const payload = JSON.parse(atob(tokenParts[1]));
+                console.log("Payload:", payload); 
+
+                const email = payload.sub;  
+                if (email) {
+                    document.getElementById('emailToken').value = email;
+                } else {
+                    console.error("Campo 'sub' não encontrado no token.");
+                }
+            } catch (error) {
+                console.error("Erro ao decodificar o token:", error);
+            }
+        } else {
+            console.error("Token não encontrado no Local Storage.");
+        }
+    })
+
+
+
+
+    function incrementCounter(produtoId) {
+        const counterElement = document.getElementById(`counter-${produtoId}`);
+        const counterElementInput = document.getElementById(`counterInput-${produtoId}`);
+
+        let currentCount = parseInt(counterElement.textContent);
+        currentCount++;
+        counterElement.textContent = currentCount;
+        counterElementInput.value = currentCount;
+    }
+
+    function tirarCounter(produtoId) {
+        const counterElement = document.getElementById(`counter-${produtoId}`);
+        const counterElementInput = document.getElementById(`counterInput-${produtoId}`);
+
+        let currentCount = parseInt(counterElement.textContent);
+        if (currentCount > 0) {
+            currentCount--;
+        }
+
+        counterElement.textContent = currentCount;
+        counterElementInput.value = currentCount;
+    }
+</script>

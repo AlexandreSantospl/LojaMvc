@@ -1,0 +1,35 @@
+﻿@model List<PurchaseList>
+
+<div class="container mt-5">
+    <h2>Meu Carrinho</h2>
+
+    <ul class="list-group">
+        @if (Model != null && Model.Any())
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="row w-100">
+                    <div class="col"><strong>Produto</strong></div>
+                    <div class="col"><strong>Valor Unitário</strong></div>
+                    <div class="col"><strong>Valor Total</strong></div>
+                    <div class="col"><strong>Quantidade</strong></div>
+                </div>
+            </li>
+            foreach (var produto in Model)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="row w-100">
+                        <div class="col">@produto.Name</div>
+                        <div class="col">@($"{produto.Price:F2}")</div> <!-- Valor unitário -->
+                        <div class="col">@($"{produto.Price * produto.Quantidade:F2}")</div> <!-- Valor total -->
+                        <div class="col">@produto.Quantidade</div>
+                    </div>
+                </li>
+            }
+        }
+        else
+        {
+            <li class="list-group-item">Nenhum produto disponível.</li>
+        }
+    </ul>
+
+</div>
