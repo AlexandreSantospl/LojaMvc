@@ -17,7 +17,7 @@ namespace Data
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlServer("SuaConnectionStringAqui", options =>
-                    options.MigrationsAssembly("SeuProjeto.Data")); // Defina o novo caminho do assembly de migrações
+                    options.MigrationsAssembly("SeuProjeto.Data")); 
             }
         }
     }

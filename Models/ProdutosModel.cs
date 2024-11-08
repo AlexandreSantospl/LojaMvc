@@ -21,6 +21,9 @@ namespace SetorDeCompras.Models
         [DefaultValue(0)]
         public required int Quantidade { get; set; } = 0;
 
+        [DefaultValue("")]
+        public string? Imagem { get; set; } = "";
+
     }
 }
 

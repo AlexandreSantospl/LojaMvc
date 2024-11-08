@@ -29,23 +29,29 @@ namespace SetorDeCompras.Repository.ProdutosRepo
 
         public async Task<ProdutosModel> FindFirstByName(string name)
         {
-
-            var dados = await _context.Produtos.FirstOrDefaultAsync(u => u.Name == name);
-            if (dados == null)
+            try
             {
-                throw new Exception();
+                var dados = await _context.Produtos.FirstOrDefaultAsync(u => u.Name == name);
+                if (dados == null)
+                {
+                    return null;
+                }
+                return dados;
             }
-            return dados;
-
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao buscar produto no banco de dados.", ex);
+            }
         }
 
-        public async Task CreateProduto(string name, int quantidade, float preco)
+            public async Task CreateProduto(string name, int quantidade, float preco, string img)
         {
             ProdutosModel novoProduto = new ProdutosModel
             {
                 Name = name,
                 Quantidade = quantidade,
-                Preco = preco
+                Preco = preco,
+                Imagem = img
             };
             await _context.Produtos.AddAsync(novoProduto);
             await _context.SaveChangesAsync();
@@ -57,5 +63,7 @@ namespace SetorDeCompras.Repository.ProdutosRepo
             _context.Produtos.Update(produto);
             await _context.SaveChangesAsync();
         }
+
+
     }
 }

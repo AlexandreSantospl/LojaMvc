@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using SetorDeCompras.Models;
 using SetorDeCompras.Repository.ProdutosRepo;
 using SetorDeCompras.Repository.UserRepo;
@@ -24,6 +26,11 @@ namespace SetorDeCompras.Controllers
 
         public async Task<IActionResult> MeuCarrinho(string email)
         {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("O email não pode estar vazio.");
+            }
+
             var user = await _userRepository.GetUserByEmailWithInclude(email);
 
             if (user == null)
@@ -51,26 +58,29 @@ namespace SetorDeCompras.Controllers
             return View(produtos);
         }
 
+        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> ProdutosPost(string name, int qntd, float valor)
+        public async Task<IActionResult> ProdutosPost([FromBody] ProdutosModel request)
         {
+            Console.WriteLine($"Dados {request.Preco}");
+            Console.WriteLine($"Dados {request.Name}"); 
 
-            if (string.IsNullOrWhiteSpace(name) || qntd <= 0 || valor <= 0)
+            if (string.IsNullOrWhiteSpace(request.Name) || request.Quantidade<= 0 || request.Preco <= 0 || string.IsNullOrWhiteSpace(request.Imagem))
             {
                 ModelState.AddModelError(string.Empty, "Dados inválidos. Por favor, preencha todos os campos corretamente.");
                 return View("ProdutosForm");
             }
 
-            var dados = await _produtosRepository.FindFirstByName(name);
+            var dados = await _produtosRepository.FindFirstByName(request.Name);
 
             if (dados == null)
             {
-                await _produtosRepository.CreateProduto(name, qntd, valor);
+                await _produtosRepository.CreateProduto(request.Name, request.Quantidade, request.Preco, request.Imagem);
             }
             else
             {
-                dados.Quantidade += qntd;
-                dados.Preco = valor;
+                dados.Quantidade += request.Quantidade;
+                dados.Preco = request.Preco;
                 await _produtosRepository.UpdateProdutos(dados);
             }
 
@@ -78,21 +88,31 @@ namespace SetorDeCompras.Controllers
 
         }
 
-
-        [HttpPost]
-        public async Task<IActionResult> AdicionarProdutosPost(ProdutosModel[] produtos, string email)
+        public class ProdutosRequestModel
         {
-            if (produtos == null || !produtos.Any())
+            public ProdutosModel[] Produtos { get; set; }
+            public string Email { get; set; }
+        }
+
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AdicionarProdutosPost([FromBody] ProdutosRequestModel request)
+        {
+            Console.WriteLine($"Produtos: {request.Produtos}");
+            Console.WriteLine($"Email: {request.Email}");
+
+            if (request.Produtos == null || !request.Produtos.Any())
             {
                 ModelState.AddModelError(string.Empty, "Nenhum produto foi selecionado.");
                 return View("ListaDeAdicionarProdutos");
             }
 
-            var user = await _userRepository.GetUserByEmailWithInclude(email);
+            var user = await _userRepository.GetUserByEmailWithInclude(request.Email);
 
             if (user != null)
             {
-                foreach (var produto in produtos)
+                foreach (var produto in request.Produtos)
                 {
                     if (produto.Quantidade > 0)
                     {
@@ -114,9 +134,7 @@ namespace SetorDeCompras.Controllers
                             user.PurchasesList.Add(newPurchase);
                         }
 
-
                         var existingProduct = await _produtosRepository.FindFirstByName(produto.Name);
-
 
                         if (existingProduct != null)
                         {
@@ -127,7 +145,7 @@ namespace SetorDeCompras.Controllers
                 }
 
                 await _userRepository.UpdateUser(user);
-                return RedirectToAction("MeuCarrinho", "Produtos", new { email });
+                return RedirectToAction("MeuCarrinho", "Produtos", new { email = request.Email });
             }
             else
             {
@@ -135,6 +153,7 @@ namespace SetorDeCompras.Controllers
                 return View("ListaDeAdicionarProdutos");
             }
         }
+
 
 
     }

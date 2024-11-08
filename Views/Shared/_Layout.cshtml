@@ -10,96 +10,116 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SetorDeCompras</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+  <header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SetorDeCompras</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1" id="nav-links">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item" id="produtosLink" style="display:none;">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="Index">Criar Produto</a>
+                    </li>
+                    <li class="nav-item" id="produtosListagemLink" style="display:none;">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="ListagemDeProdutos">Listar Produtos</a>
+                    </li>
+                    <li class="nav-item" id="adicionarProdutoLink" style="display:none;">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="ListaDeAdicionarProdutos">Adicionar Produtos</a>
+                    </li>
+                    <li class="nav-item" id="meuCarrinhoLink" style="display:none;">
+                        <a id="meuCarrinhoLinke" class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="MeuCarrinho">Minhas Compras</a>                 
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Pagina 1</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Registro">Registrar</a>
-
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="Index">Criar Produto</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="ListagemDeProdutos">Listar Produtos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="ListaDeAdicionarProdutos">Adicionar Produtos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a id="meuCarrinhoLink" class="nav-link text-dark" asp-area="" asp-controller="Produtos" asp-action="MeuCarrinho">Meu Carrinho</a>
-                        </li>
-                    </ul>
-
-                </div>
+                    <li class="nav-item" id="loginLink">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
+                    </li>
+                    <li class="nav-item" id="registroLink">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Registro">Registrar</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto" id="logoutLink" style="display:none;">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="#" id="logoutBtn">Sair</a>
+                    </li>
+                </ul>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - SetorDeCompras - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    </nav>
+</header>
+
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
 
-
 <script>
-        window.onload = function () {
-        const token = localStorage.getItem('jwtToken');
-        if (token) {
-            try {
-                const tokenParts = token.split('.');
-                if (tokenParts.length !== 3) {
-                    throw new Error("Token JWT inválido");
-                }
+    document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem('jwtToken');
 
-                const payload = JSON.parse(atob(tokenParts[1]));
-                console.log("Payload:", payload); // Log do payload
-                const email = payload.sub;
-
-                if (email) {
-                    const meuCarrinhoLink = document.getElementById('meuCarrinhoLink');
-                    if (meuCarrinhoLink) {
-                        meuCarrinhoLink.href = `/Produtos/MeuCarrinho?email=${encodeURIComponent(email)}`;
-                    } else {
-                        console.error("Elemento 'meuCarrinhoLink' não encontrado.");
-                    }
-                } else {
-                    console.error("Campo 'sub' não encontrado no token.");
-                }
-            } catch (error) {
-                console.error("Erro ao decodificar o token:", error);
+    if (token) {
+        try {
+            const tokenParts = token.split('.');
+            if (tokenParts.length !== 3) {
+                throw new Error("Token JWT inválido");
             }
-        } else {
-            console.error("Token não encontrado no Local Storage.");
+
+            const payload = JSON.parse(atob(tokenParts[1]));
+            const email = payload.sub;
+
+            if (email) {
+                const meuCarrinhoLink = document.getElementById('meuCarrinhoLink');
+                const meuCarrinhoLinke = document.getElementById('meuCarrinhoLinke');
+                if (meuCarrinhoLink) {
+                    // Define o link com o email extraído
+                    meuCarrinhoLinke.href = `/Produtos/MeuCarrinho?email=${encodeURIComponent(email)}`;
+                    meuCarrinhoLink.href = `/Produtos/MeuCarrinho?email=${encodeURIComponent(email)}`;
+                    console.log("Link do carrinho configurado com email:", meuCarrinhoLink.href);
+                }
+            } else {
+                console.error("Email não disponível no token.");
+            }
+
+            document.getElementById('produtosLink').style.display = 'inline-block';
+            document.getElementById('produtosListagemLink').style.display = 'inline-block';
+            document.getElementById('adicionarProdutoLink').style.display = 'inline-block';
+            document.getElementById('meuCarrinhoLink').style.display = 'inline-block';
+
+            document.getElementById('loginLink').style.display = 'none';
+            document.getElementById('registroLink').style.display = 'none';
+            document.getElementById('logoutLink').style.display = 'inline-block';
+
+            document.getElementById('logoutBtn').addEventListener('click', function () {
+                localStorage.removeItem('jwtToken');
+                window.location.href = '/Home/Index';
+            });
+        } catch (error) {
+            console.error("Erro ao decodificar o token:", error);
         }
+    } else {
+        document.getElementById('produtosLink').style.display = 'none';
+        document.getElementById('produtosListagemLink').style.display = 'none';
+        document.getElementById('adicionarProdutoLink').style.display = 'none';
+        document.getElementById('meuCarrinhoLink').style.display = 'none';
+
+        document.getElementById('loginLink').style.display = 'inline-block';
+        document.getElementById('registroLink').style.display = 'inline-block';
+        document.getElementById('logoutLink').style.display = 'none';
     }
+});
+
 
 </script>
+

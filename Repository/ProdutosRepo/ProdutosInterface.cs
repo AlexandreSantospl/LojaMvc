@@ -8,7 +8,7 @@ namespace SetorDeCompras.Repository.ProdutosRepo
     {
         Task<List<ProdutosModel>> GetAllProdutos();
         Task<ProdutosModel> FindFirstByName(string name);
-        Task CreateProduto(string name, int quantidade, float preco);
+        Task CreateProduto(string name, int quantidade, float preco, string img);
         Task UpdateProdutos(ProdutosModel produto);
     }
 }

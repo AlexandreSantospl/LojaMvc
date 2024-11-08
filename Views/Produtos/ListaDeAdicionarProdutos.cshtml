@@ -3,51 +3,95 @@
 <div class="container mt-5">
     <h2 class="mb-4">Lista de Produtos</h2>
     <form id="produtosForm" method="post" action="/Produtos/AdicionarProdutosPost">
-        <input type="hidden" name="email" id="emailToken" value="@ViewBag.Email" />
+    <input type="hidden" name="email" id="emailToken" value="@ViewBag.Email" />
 
-        <div class="row">
-            @if (Model != null && Model.Any())
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            for (int i = 0; i < Model.Count; i++)
             {
-                for (int i = 0; i < Model.Count; i++)
-                {
-                    var produto = Model[i];
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <img src="https://pub-15d60b34d3424e1283b657e002175c8b.r2.dev/tecnopuc/296eff67-f0f0-40c5-9fe7-bd777ee47fa1.jpg" class="card-img-top" alt="Imagem do produto" style="height: 200px; object-fit: cover;">
-                            <div class="card-body" style="align-items: center; justify-content: center; display: flex; flex-direction: column;">
-                                <h5 class="card-title" >@produto.Name</h5>
-                                <p class="card-text" style="align-items: center; justify-content: center; display: flex;">Preço: @produto.Preco.ToString("C")</p>
-                                
-                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 2rem">
-                                        <button type="button" onclick="tirarCounter('@produto.Id')" class="btn btn-secondary btn-sm">-</button>
-                                        <span id="counter-@produto.Id">0</span>
-                                        <button type="button" onclick="incrementCounter('@produto.Id')" class="btn btn-secondary btn-sm">+</button>
-                                    </div>
-                                    <input type="hidden" name="produtos[@i].Id" value="@produto.Id" />
-                                    <input type="hidden" name="produtos[@i].Preco" value="@produto.Preco" />
-                                    <input type="hidden" name="produtos[@i].Name" value="@produto.Name" />
-                                    <input type="hidden" name="produtos[@i].Quantidade" id="counterInput-@produto.Id" value="0" />
-                                
+                var produto = Model[i];
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="@produto.Imagem" class="card-img-top" alt="Imagem do produto" style="height: 180px;">
+                        <div class="card-body" style="align-items: center; justify-content: center; display: flex; flex-direction: column;">
+                            <h5 class="card-title">@produto.Name</h5>
+                            <p class="card-text" style="align-items: center; justify-content: center; display: flex;">Preço: @produto.Preco.ToString("C")</p>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 2rem">
+                                <button type="button" onclick="tirarCounter('@produto.Id', @produto.Quantidade)" class="btn btn-secondary btn-sm">-</button>
+                                <span id="counter-@produto.Id">0</span>
+                                <button type="button" onclick="incrementCounter('@produto.Id', @produto.Quantidade)" class="btn btn-secondary btn-sm">+</button>
                             </div>
+                            <input type="hidden" name="produtos[@i].Id" value="@produto.Id" />
+                            <input type="hidden" name="produtos[@i].Preco" value="@produto.Preco" />
+                            <input type="hidden" name="produtos[@i].Name" value="@produto.Name" />
+                            <input type="hidden" name="produtos[@i].Quantidade" id="counterInput-@produto.Id" value="0" />
                         </div>
                     </div>
-                }
-            }
-            else
-            {
-                <div class="col-12">
-                    <p class="text-center">Nenhum produto disponível.</p>
                 </div>
             }
-        </div>
-        <button type="submit" class="btn btn-primary mt-3">Comprar</button>
-    </form>
+        }
+        else
+        {
+            <div class="col-12">
+                <p class="text-center">Nenhum produto disponível.</p>
+            </div>
+        }
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Comprar</button>
+</form>
+
 </div>
 
 <!--Script do Bootstrap e jQuery-->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
+    document.getElementById('produtosForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const produtosArray = [];
+        const produtosElements = document.querySelectorAll('input[name^="produtos["]');
+        
+        produtosElements.forEach(function(input) {
+            const index = input.name.split('[')[1].split(']')[0];
+            if (!produtosArray[index]) {
+                produtosArray[index] = {};
+            }
+            produtosArray[index][input.name.split('.')[1]] = input.value;
+        });
+
+        const emailToken = document.getElementById('emailToken').value;
+
+        const formData = {
+            Produtos: produtosArray,
+            Email: emailToken
+        };
+
+        const token = localStorage.getItem('jwtToken');
+        if (token) {
+            const response = await fetch('/Produtos/AdicionarProdutosPost', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert("Produto adicionado com sucesso");
+                window.location.href = `/Produtos/MeuCarrinho?email=${emailToken}`;
+            } else {
+                console.log(response);
+                alert("Falha ao adicionar produto");
+            }
+        } else {
+            console.error("Token JWT não encontrado.");
+        }
+            });
+
     document.addEventListener('DOMContentLoaded', function () {
         const token = localStorage.getItem('jwtToken');
         console.log("Token:", token);
@@ -78,17 +122,23 @@
         }
     });
 
-    function incrementCounter(produtoId) {
+    function incrementCounter(produtoId, maxQuantity) {
         const counterElement = document.getElementById(`counter-${produtoId}`);
         const counterElementInput = document.getElementById(`counterInput-${produtoId}`);
 
         let currentCount = parseInt(counterElement.textContent);
-        currentCount++;
-        counterElement.textContent = currentCount;
-        counterElementInput.value = currentCount;
+        if (currentCount < maxQuantity) {
+            currentCount++;
+            counterElement.textContent = currentCount;
+            counterElementInput.value = currentCount;
+        } else if (maxQuantity === 0) {
+            alert("O produto não está disponível em nosso estoque.");
+        } else {
+            alert("Não é possível adicionar mais do que a quantidade disponível em estoque.");
+        }
     }
 
-    function tirarCounter(produtoId) {
+    function tirarCounter(produtoId, maxQuantity) {
         const counterElement = document.getElementById(`counter-${produtoId}`);
         const counterElementInput = document.getElementById(`counterInput-${produtoId}`);
 

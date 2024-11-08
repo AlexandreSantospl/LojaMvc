@@ -1,23 +1,70 @@
-﻿<div style=" margin-left: 18vw;margin-top: 5vh; width: 550px; height: 750px; border-style: solid; border-color: rgba(0, 0, 0, 0.295); border-radius: 15px; background-color: rgb(252, 234, 210);">
+﻿<div style="margin-left: 18vw; margin-top: 5vh; width: 550px; height: 750px; border-style: solid; border-color: rgba(0, 0, 0, 0.295); border-radius: 15px; background-color: rgb(252, 234, 210);">
     <div>
-        <form action="/Produtos/ProdutosPost" method="post">
-            <h4 style="margin-top: 40px;  margin-bottom: 20px; text-align: center; font-size: 22pt;">
+        <form id="produtoForm">
+            <h4 style="margin-top: 40px; margin-bottom: 20px; text-align: center; font-size: 22pt;">
                 Criar um Produto
             </h4>
             <hr>
-            <label for="name" style="text-align: center; margin-left: 245px; margin-top: 50px; font-weight: bold; font-size: 14pt;">Nome:</label>
-            <input type="text" name="name" style="width: 500px; height: 50px; border-radius: 15px; text-align: center; margin-left: 22px; margin-top: 5px; border: solid; border-color: rgb(224, 204, 177)">
-            <br>
-            <label for="valor" style="text-align: center; margin-left: 245px; margin-top: 50px; font-weight: bold; font-size: 14pt;">Valor</label>
-            <input type="number" name="valor" style="width: 500px; height: 50px; border-radius: 15px; text-align: center; margin-left: 22px; margin-top: 5px; border: solid; border-color: rgb(224, 204, 177);">
-            <br>
-            <label for="qntd" style="text-align: center; margin-left: 245px; margin-top: 50px; font-weight: bold; font-size: 14pt;">Quantidade</label>
-            <input type="number" name="qntd" style="width: 500px; height: 50px; border-radius: 15px; text-align: center; margin-left: 22px; margin-top: 5px; border: solid; border-color: rgb(224, 204, 177);">
-            <br>
+            <label for="name" style="text-align: center; margin-left: 245px; margin-top: 5px; font-weight: bold; font-size: 14pt;">Nome:</label>
+            <input type="text" id="name" name="name" style="width: 500px; height: 50px; border-radius: 15px; text-align: center; margin-left: 22px; margin-top: 5px; border: solid; border-color: rgb(224, 204, 177)">
 
-            <button type="submit" id="btn-criar" style="margin-top: 80px; margin-left: 100px;  width: 350px; height: 50px; border-radius: 15px; border: solid; border-color: rgb(224, 204, 177);">
+            <label for="valor" style="text-align: center; margin-left: 245px; margin-top: 30px; font-weight: bold; font-size: 14pt;">Valor</label>
+            <input type="number" id="valor" name="valor" style="width: 500px; height: 50px; border-radius: 15px; text-align: center; margin-left: 22px; margin-top: 5px; border: solid; border-color: rgb(224, 204, 177);">
+
+            <label for="qntd" style="text-align: center; margin-left: 225px; margin-top: 30px; font-weight: bold; font-size: 14pt;">Quantidade</label>
+            <input type="number" id="qntd" name="qntd" style="width: 500px; height: 50px; border-radius: 15px; text-align: center; margin-left: 22px; margin-top: 5px; border: solid; border-color: rgb(224, 204, 177);">
+
+            <label for="img" style="text-align: center; margin-left: 210px; margin-top: 30px; font-weight: bold; font-size: 14pt;">Link da Imagem</label>
+            <input type="text" id="img" name="img" style="width: 500px; height: 50px; border-radius: 15px; text-align: center; margin-left: 22px; margin-top: 5px; border: solid; border-color: rgb(224, 204, 177);">
+
+            <button type="submit" id="btn-criar" style="margin-top: 80px; margin-left: 100px; width: 350px; height: 50px; border-radius: 15px; border: solid; border-color: rgb(224, 204, 177);">
                 Adicionar
             </button>
         </form>
     </div>
 </div>
+
+<script>
+    document.getElementById('produtoForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const nome = document.getElementById('name').value;
+        const valor = document.getElementById('valor').value;
+        const qntd = document.getElementById('qntd').value;
+        const img = document.getElementById('img').value;
+
+
+
+
+        const formData = {
+            Name: nome,
+            Preco: valor,
+            Quantidade: qntd,
+            Imagem: img
+        };
+
+        const token = localStorage.getItem('jwtToken');
+
+        try {
+            const response = await fetch('/Produtos/ProdutosPost', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert("Produto adicionado com sucesso!");
+            } else {
+                console.error('Falha ao adicionar o produto');
+                alert("Erro ao adicionar produto.");
+            }
+        } catch (error) {
+            console.error("Erro no envio:", error);
+            alert("Erro de comunicação com o servidor.");
+        }
+    });
+</script>

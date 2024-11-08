@@ -26,6 +26,7 @@ namespace SetorDeCompras.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
+            // Usando UtcNow ao invés de Now
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -33,7 +34,7 @@ namespace SetorDeCompras.Services
                 issuer: _issuer,
                 audience: _audience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(600),
+                expires: DateTime.UtcNow.AddMinutes(600),  // Usando UTC agora
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

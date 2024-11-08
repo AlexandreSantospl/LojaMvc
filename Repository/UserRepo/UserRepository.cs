@@ -25,10 +25,6 @@ namespace SetorDeCompras.Repository.UserRepo
         {
             var response = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-            if (response == null)
-            {
-                throw new ArgumentException();
-            }
             return response;
         }
 

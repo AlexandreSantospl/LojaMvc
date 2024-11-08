@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer; // Adicione esta linha
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using System.Text;
 using Data;
 using SetorDeCompras.Services;
@@ -12,10 +11,12 @@ using SetorDeCompras.Repository.ProdutosRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Carregar configurações do appsettings.json
+var configuration = builder.Configuration;
+
 // Configuração do serviço JWT
 builder.Services.AddScoped<JwtService>(sp =>
 {
-    var configuration = sp.GetRequiredService<IConfiguration>();
     return new JwtService(
         configuration["Jwt:Key"],
         configuration["Jwt:Issuer"],
@@ -43,14 +44,15 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidIssuer = "http://localhost:5000", 
-        ValidAudience = "http://localhost:5000", 
+        ValidIssuer = configuration["Jwt:Issuer"], 
+        ValidAudience = configuration["Jwt:Audience"], 
         ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sua_chave_secreta_aqui")),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),  
         ValidateIssuerSigningKey = true
     };
 });
-//Registrar os repositorios
+
+// Registrar os repositórios
 builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<ProdutosRepository>();

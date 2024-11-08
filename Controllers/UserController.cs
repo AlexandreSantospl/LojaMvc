@@ -56,10 +56,8 @@ namespace SetorDeCompras.Controllers
 
                 var response = await _userRepository.FindFirstByEmail(email);
 
-
                 if (response == null)
                 {
-
                     await _authRepository.CreateAuthVaidation(name, email);
                     await _userRepository.CreateUser(name, idade, email);
                     await _emailService.SendEmailAsync(email, "Usuario registrado!", "Você foi cadastrado com sucesso!");
@@ -106,13 +104,13 @@ namespace SetorDeCompras.Controllers
         [HttpPost]
         public async Task<IActionResult> CodigoPost(int code, string email)
         {
-            Console.WriteLine(email);
+            Console.WriteLine("emailAAAAAAAAAAAAAAAAAAAAA",email);
             var dados = await _authRepository.FindFirstByEmail(email);
 
             if (dados!.Code == code)
             {
                 var token = _jwtService.GenerateJwtToken(email);
-
+                
                 return RedirectToAction("Index", "Home", new { token });
             }
             ModelState.AddModelError(string.Empty, "Dados inválidos. Por favor, preencha todos os campos corretamente.");
