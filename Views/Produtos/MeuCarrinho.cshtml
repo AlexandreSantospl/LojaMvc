@@ -1,7 +1,7 @@
 ﻿@model List<PurchaseList>
 
 <div class="container mt-5">
-    <h2>Meu Carrinho</h2>
+    <h2>Compras Realizadas</h2>
 
     <ul class="list-group">
         @if (Model != null && Model.Any())
@@ -19,8 +19,8 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <div class="row w-100">
                         <div class="col">@produto.Name</div>
-                        <div class="col">@($"{produto.Price:F2}")</div> <!-- Valor unitário -->
-                        <div class="col">@($"{produto.Price * produto.Quantidade:F2}")</div> <!-- Valor total -->
+                        <div class="col">@($"{produto.Price:F2}")</div>
+                        <div class="col">@($"{produto.Price * produto.Quantidade:F2}")</div>
                         <div class="col">@produto.Quantidade</div>
                     </div>
                 </li>

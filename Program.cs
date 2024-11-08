@@ -6,6 +6,9 @@ using System.Text;
 using Data;
 using SetorDeCompras.Services;
 using SetorDeCompras.Models;
+using SetorDeCompras.Repository.AuthRepo;
+using SetorDeCompras.Repository.UserRepo;
+using SetorDeCompras.Repository.ProdutosRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +50,10 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 });
+//Registrar os repositorios
+builder.Services.AddScoped<AuthRepository>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<ProdutosRepository>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<EmailService>();

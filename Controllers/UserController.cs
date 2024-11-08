@@ -1,31 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Data;
-using Models;
-using System.Threading.Tasks;
 using SetorDeCompras.Services;
-using Microsoft.EntityFrameworkCore;
-using SetorDeCompras.Models;
+using SetorDeCompras.Repository.AuthRepo;
+using SetorDeCompras.Repository.UserRepo;
 
 namespace SetorDeCompras.Controllers
 {
     public class UserController : Controller
     {
-        private readonly AppDbContext _context;
         private readonly EmailService _emailService;
         private readonly JwtService _jwtService;
-        private static Random _random = new Random();
+        private readonly AuthRepository _authRepository;
+        private readonly UserRepository _userRepository;
 
-
-        public UserController(AppDbContext context, EmailService emailService, JwtService jwtService)
+        public UserController(EmailService emailService, JwtService jwtService, AuthRepository authRepository, UserRepository userRepository)
         {
-            _context = context;
             _emailService = emailService;
             _jwtService = jwtService;
-        }
-
-        public int GenerateRandomCode()
-        {
-            return _random.Next(1000, 10000);
+            _authRepository = authRepository;
+            _userRepository = userRepository;
         }
 
 
@@ -61,38 +53,19 @@ namespace SetorDeCompras.Controllers
 
             try
             {
-                var response = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+                var response = await _userRepository.FindFirstByEmail(email);
 
 
                 if (response == null)
                 {
 
-                    User novoUsuario = new User
-                    {
-                        Name = name,
-                        Email = email,
-                        Age = idade
-                    };
-
-                    int randomCode = GenerateRandomCode();
-
-                    AuthValidationModel newAuthValidationUser = new AuthValidationModel
-                    {
-                        Email = email,
-                        Name = name,
-                        Code = randomCode
-                    };
-
-                    await _context.AuthValidation.AddAsync(newAuthValidationUser);
-                    await _context.Users.AddAsync(novoUsuario);
-                    await _context.SaveChangesAsync();
-
+                    await _authRepository.CreateAuthVaidation(name, email);
+                    await _userRepository.CreateUser(name, idade, email);
                     await _emailService.SendEmailAsync(email, "Usuario registrado!", "Você foi cadastrado com sucesso!");
 
                     return RedirectToAction("Login");
                 }
-
-                await _emailService.SendEmailAsync(email, "Usuario já registrado!", "Você já possui registro");
 
                 return RedirectToAction("Login");
             }
@@ -109,7 +82,7 @@ namespace SetorDeCompras.Controllers
         {
             try
             {
-                var response = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                var response = await _userRepository.FindFirstByEmail(email);
 
                 if (response == null)
                 {
@@ -117,15 +90,7 @@ namespace SetorDeCompras.Controllers
                     return RedirectToAction("Login");
                 }
 
-                var authDates = await _context.AuthValidation.FirstOrDefaultAsync(u => u.Email == email);
-
-                int randomCode = GenerateRandomCode();
-
-                authDates!.Code = randomCode;
-
-                _context.AuthValidation.Update(authDates);
-
-                await _context.SaveChangesAsync();
+                var randomCode = await _authRepository.GenerateNewCode(email);
 
                 await _emailService.SendEmailAsync(email, "Seu Codigo Chegou!", $"Aqui está seu codigo {randomCode}");
 
@@ -142,7 +107,7 @@ namespace SetorDeCompras.Controllers
         public async Task<IActionResult> CodigoPost(int code, string email)
         {
             Console.WriteLine(email);
-            var dados = await _context.AuthValidation.FirstOrDefaultAsync(u => u.Email == email);
+            var dados = await _authRepository.FindFirstByEmail(email);
 
             if (dados!.Code == code)
             {

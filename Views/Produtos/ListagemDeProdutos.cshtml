@@ -1,21 +1,21 @@
 ﻿@model List<SetorDeCompras.Models.ProdutosModel>
 
-<h2>Lista de Produtos</h2>
-<table>
+<h2 style="font-family: Arial, sans-serif; color: #333;">Lista de Produtos</h2>
+<table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; margin-top: 10px;">
     <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Preço</th>
-            <th>Quantidade</th>
+        <tr style="background-color: #4CAF50; color: white; text-align: left;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Nome</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Preço</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Quantidade</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var produto in Model)
         {
-            <tr>
-                <td>@produto.Name</td>
-                <td>@produto.Preco</td>
-                <td>@produto.Quantidade</td>
+            <tr style="background-color: #f9f9f9;">
+                <td style="padding: 8px; border: 1px solid #ddd;">@produto.Name</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@produto.Preco.ToString("C")</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">@produto.Quantidade</td>
             </tr>
         }
     </tbody>

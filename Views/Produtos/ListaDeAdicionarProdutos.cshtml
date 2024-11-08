@@ -1,37 +1,46 @@
 ﻿@model List<SetorDeCompras.Models.ProdutosModel>
 
 <div class="container mt-5">
-    <h2>Lista de Produtos</h2>
+    <h2 class="mb-4">Lista de Produtos</h2>
     <form id="produtosForm" method="post" action="/Produtos/AdicionarProdutosPost">
         <input type="hidden" name="email" id="emailToken" value="@ViewBag.Email" />
 
-        <ul class="list-group">
+        <div class="row">
             @if (Model != null && Model.Any())
             {
                 for (int i = 0; i < Model.Count; i++)
                 {
                     var produto = Model[i];
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        @produto.Name
-                        <div>
-                            <span id="counter-@produto.Id">0</span>
-                            <button type="button" onclick="incrementCounter('@produto.Id')" class="btn btn-secondary btn-sm">+</button>
-                            <button type="button" onclick="tirarCounter('@produto.Id')" class="btn btn-secondary btn-sm">-</button>
-
-                            <input type="hidden" name="produtos[@i].Id" value="@produto.Id" />
-                            <input type="hidden" name="produtos[@i].Preco" value="@produto.Preco" />
-                            <input type="hidden" name="produtos[@i].Name" value="@produto.Name" />
-                            <input type="hidden" name="produtos[@i].Quantidade" id="counterInput-@produto.Id" value="0" />
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="https://pub-15d60b34d3424e1283b657e002175c8b.r2.dev/tecnopuc/296eff67-f0f0-40c5-9fe7-bd777ee47fa1.jpg" class="card-img-top" alt="Imagem do produto" style="height: 200px; object-fit: cover;">
+                            <div class="card-body" style="align-items: center; justify-content: center; display: flex; flex-direction: column;">
+                                <h5 class="card-title" >@produto.Name</h5>
+                                <p class="card-text" style="align-items: center; justify-content: center; display: flex;">Preço: @produto.Preco.ToString("C")</p>
+                                
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 2rem">
+                                        <button type="button" onclick="tirarCounter('@produto.Id')" class="btn btn-secondary btn-sm">-</button>
+                                        <span id="counter-@produto.Id">0</span>
+                                        <button type="button" onclick="incrementCounter('@produto.Id')" class="btn btn-secondary btn-sm">+</button>
+                                    </div>
+                                    <input type="hidden" name="produtos[@i].Id" value="@produto.Id" />
+                                    <input type="hidden" name="produtos[@i].Preco" value="@produto.Preco" />
+                                    <input type="hidden" name="produtos[@i].Name" value="@produto.Name" />
+                                    <input type="hidden" name="produtos[@i].Quantidade" id="counterInput-@produto.Id" value="0" />
+                                
+                            </div>
                         </div>
-                    </li>
+                    </div>
                 }
             }
             else
             {
-                <li class="list-group-item">Nenhum produto disponível.</li>
+                <div class="col-12">
+                    <p class="text-center">Nenhum produto disponível.</p>
+                </div>
             }
-        </ul>
-        <button type="submit" class="btn btn-primary mt-3">Enviar</button>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Comprar</button>
     </form>
 </div>
 
@@ -41,21 +50,21 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const token = localStorage.getItem('jwtToken');
-        console.log("Token:", token);  
+        console.log("Token:", token);
 
         if (token) {
             try {
                 const tokenParts = token.split('.');
-                console.log("Token Parts:", tokenParts); 
+                console.log("Token Parts:", tokenParts);
 
                 if (tokenParts.length !== 3) {
                     throw new Error("Token JWT inválido");
                 }
 
                 const payload = JSON.parse(atob(tokenParts[1]));
-                console.log("Payload:", payload); 
+                console.log("Payload:", payload);
 
-                const email = payload.sub;  
+                const email = payload.sub;
                 if (email) {
                     document.getElementById('emailToken').value = email;
                 } else {
@@ -67,10 +76,7 @@
         } else {
             console.error("Token não encontrado no Local Storage.");
         }
-    })
-
-
-
+    });
 
     function incrementCounter(produtoId) {
         const counterElement = document.getElementById(`counter-${produtoId}`);

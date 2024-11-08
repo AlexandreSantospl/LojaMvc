@@ -10,7 +10,15 @@ namespace Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<ProdutosModel> Produtos { get; set; }
-
         public DbSet<AuthValidationModel> AuthValidation { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("SuaConnectionStringAqui", options =>
+                    options.MigrationsAssembly("SeuProjeto.Data")); // Defina o novo caminho do assembly de migrações
+            }
+        }
     }
 }
